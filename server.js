@@ -3,6 +3,7 @@ const WebSocket = require('ws');
 const { Pool } = require('pg');
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const pool = new Pool({
@@ -88,26 +89,5 @@ server.on('upgrade', (request, socket, head) => {
   });
 });
 
-// Endpoint na report
-app.get('/report/:year/:month', async (req, res) => {
-  const { year, month } = req.params;
-  try {
-    const result = await pool.query(
-      `SELECT charger_id, SUM(energy_wh) as total_wh, COUNT(*) as sessions
-       FROM charge_sessions
-       WHERE EXTRACT(YEAR FROM start_time) = $1 
-       AND EXTRACT(MONTH FROM start_time) = $2
-       GROUP BY charger_id`,
-      [year, month]
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK' });
-});
+// Endpoint na report JSON
+app.
